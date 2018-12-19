@@ -25,6 +25,10 @@ map Q gq
 " In many terminal emulators the mouse works just fine, thus enable it.
 set mouse=a
 
+set term=screen-256color
+set t_Co=256
+set t_ut=
+
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
@@ -100,29 +104,11 @@ set ignorecase
 "map <tab> :wincmd W<cr>
 map <S-tab> :wincmd w<cr>
 imap <S-tab> :wincmd w<cr>
-map <C-tab> :b#<cr>
+noremap <C-tab> :b#<cr>
 imap <C-tab> <esc>:b#<cr>
 map <C-S-tab> :bp!<cr>
 imap <C-S-tab> <esc>:bp!<cr>
 "set path=.,include;/,.;/,
-
-function! OunCommentLine() 
-        normal ^3x 
-        normal $xxx
-        normal j
-endfunction 
-
-function! OcommentLine() 
-        normal ^i/* 
-        normal A */
-        normal j
-endfunction 
-
-function! OcommentLine0() 
-        normal 0i/* 
-        normal A */
-        normal j
-endfunction 
 
 function! OspacesSetEnd() 
         let b:ospaces_end = col(".")        
@@ -185,20 +171,18 @@ set errorformat^=%-G%f:%l:\ warning:%m
 "imap <C-Space> <Esc>
 
 map <F1> :b1<CR>
+map <F3> :b1<CR>
+"map <F3> :w<CR>:w<CR>:w<CR>:w<CR>
 map <C-F1> :set diffopt^=iwhite<CR>
 map  <F2> :Explore<CR>
 map  <F4> :match Ignore /\r$/<CR>
 map  <C-F4> :call OcscopeMakeTags()<CR>
 map  <A-F4> :q<CR>
 
-map <F3> :w<CR>:w<CR>:w<CR>:w<CR>
-map <F7> :cf nix/.errfile.tmp<CR>
+map <F7> :cf .errfile.tmp<CR>
 map <S-F7> :cl<CR>
 map <C-F7> :cn<CR>
 map <C-S-F7> :cp<CR>
-map <C-F5> :call OcommentLine0()<CR>
-map <F5> :call OcommentLine()<CR>
-map <S-F5> :call OunCommentLine()<CR>
 
 map <F6> :buffers<CR>:e #
 
@@ -217,7 +201,8 @@ set confirm
 "unmap <C-a>
 set shellslash
 
-:color desert
+":color desert
+:color peachpuff
 "set guifont=Lucida_Console:h12
 "set guifont=DejaVu_Sans_Mono:h11:cANSI
 
@@ -240,8 +225,63 @@ set foldcolumn=2
 "let g:netrw_winsize = 25
 let g:netrw_list_hide= '.*\.swp$,^\.git$,^\..*$,\~$'
 
-source ~/.vim/cscope_maps.vim
-source ~/.vim/gtags.vim
+if filereadable(expand("~/.vim/cscope_maps.vim"))
+        source ~/.vim/cscope_maps.vim
+endif
+
+" ***************************************
+"  COLORS
+" ***************************************
+if &t_Co > 255
+hi Normal ctermbg=223 ctermfg=16 guibg=PeachPuff guifg=Black
+hi SpecialKey term=bold ctermfg=4 guifg=Blue
+hi NonText term=bold cterm=bold ctermfg=4 gui=bold guifg=Blue
+hi Directory term=bold ctermfg=4 guifg=Blue
+hi ErrorMsg term=standout cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
+hi IncSearch term=reverse cterm=reverse gui=reverse
+hi Search term=reverse ctermbg=226 guibg=Gold2
+hi MoreMsg term=bold ctermfg=2 gui=bold guifg=SeaGreen
+hi ModeMsg term=bold cterm=bold gui=bold
+hi LineNr term=underline ctermfg=3 guifg=Red3
+hi Question term=standout ctermfg=47 gui=bold guifg=SeaGreen
+hi StatusLine term=bold,reverse cterm=bold,reverse gui=bold guifg=White guibg=Black
+hi StatusLineNC term=reverse cterm=reverse gui=bold guifg=PeachPuff guibg=Gray45
+hi VertSplit term=reverse cterm=reverse gui=bold guifg=White guibg=Gray45
+hi Title term=bold ctermfg=5 gui=bold guifg=DeepPink3
+hi Visual term=reverse cterm=reverse ctermfg=249 ctermbg=fg gui=reverse guifg=Grey80 guibg=fg
+hi VisualNOS term=bold,underline cterm=bold,underline gui=bold,underline
+hi WarningMsg term=standout ctermfg=1 gui=bold guifg=Red
+hi WildMenu term=standout ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
+hi Folded term=standout ctermfg=4 ctermbg=7 guifg=Black guibg=#e3c1a5
+hi FoldColumn term=standout ctermfg=4 ctermbg=7 guifg=DarkBlue guibg=Gray80
+hi DiffAdd term=bold ctermbg=223 guibg=White
+hi DiffChange term=bold ctermbg=223 guibg=#edb5cd
+hi DiffDelete term=bold cterm=bold ctermfg=4 ctermbg=217 gui=bold guifg=LightBlue guibg=#f6e8d0
+hi DiffText term=reverse cterm=bold ctermbg=229 gui=bold guibg=#ff8060
+hi Cursor guifg=bg guibg=fg
+hi lCursor guifg=bg guibg=fg
+
+" Colors for syntax highlighting
+hi Comment term=bold ctermfg=4 guifg=#406090
+hi Constant term=underline ctermfg=1 guifg=#c00058
+hi Special term=bold ctermfg=5 guifg=SlateBlue
+hi Identifier term=underline ctermfg=6 guifg=DarkCyan
+hi Statement term=bold cterm=bold ctermfg=88 gui=bold guifg=Brown
+hi PreProc term=underline ctermfg=128 guifg=Magenta3
+hi Type term=underline cterm=bold ctermfg=35 gui=bold guifg=SeaGreen
+hi Ignore cterm=bold ctermfg=7 guifg=bg
+hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
+hi Todo term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
+endif
+
+" ***************************************
+"  DIFF MODE
+" ***************************************
+:if &diff
+set noro
+hi Normal ctermbg=250 ctermfg=16 
+:endif
+
 
 " My Tips
 "
