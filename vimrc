@@ -1,40 +1,49 @@
+" Use Vim settings, rather then Vi settings (much better!).
+" This must be first, because it changes other options as a side effect.
+set nocompatible
+
+call plug#begin('~/.vim/plugged')
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+call plug#end()
+
+if filereadable(expand("~/.fzf.bash"))
+    inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
+endif
+
 " When started as "evim", evim.vim will already have done these settings.
 if v:progname =~? "evim"
   finish
 endif
 
-" Use Vim settings, rather then Vi settings (much better!).
-" This must be first, because it changes other options as a side effect.
-set nocompatible
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
-set backup		" keep a backup file
-set history=50		" keep 50 lines of command line history
-set ruler		" show the cursor position all the time
-set showcmd		" display incomplete commands
-set incsearch		" do incremental searching
-set number
-
-" In many terminal emulators the mouse works just fine, thus enable it.
-set mouse=a
+set backup      " keep a backup file
+set history=50  " keep 50 lines of command line history
+set ruler       " show the cursor position all the time
+set showcmd     " display incomplete commands
+set incsearch   " do incremental searching
+set number      " show line numbers
+set ignorecase  " ignore case in pattern
+set mouse=a     " enable mouse
 
 set term=screen-256color
 set t_Co=256
 set t_ut=
 
-set ts=8
-set ignorecase
-
-set shellslash
-set et
+set shellslash  " use '/' when expanding filenames
+set expandtab   
 set smarttab
+set tabstop=4
+set shiftwidth=4
 
-" visual bell
-set vb
-
+set visualbell
 set foldcolumn=2
+set confirm
+
+"command Paste execute 'set noai | insert | set ai'
 
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
@@ -43,9 +52,7 @@ if &t_Co > 2 || has("gui_running")
   set hlsearch
 endif
 
-" Autocomplete settings
-" (By default, vim completes to the first match.  This makes it work like bash):
-"set wildmenu
+set wildmenu  "autocomplete like bash
 "set wildmode=list:longest
 
 " Only do this part when compiled with support for autocommands.
@@ -66,15 +73,13 @@ if has("autocmd")
 
 else
 
-  set autoindent		" always set autoindenting on
+  set autoindent        " always set autoindenting on
 
 endif " has("autocmd")
 
 "set textwidth=80
 "au BufNewFile,BufRead *.c,*.h exec 'match Todo /\%>' .  &textwidth . 'v.\+/'
 "au BufNewFile,BufRead *.h exec 'match Todo /\%>' .  &textwidth . 'v.\+/'
-"source $VIMRUNTIME/mswin.vim
-"behave mswin
 " For all text files set 'shiftwidth' to 2 characters.
 autocmd FileType text setlocal shiftwidth=2 textwidth=79
 " For all C, C++ files set 'textwidth' to 80 characters.
@@ -129,30 +134,26 @@ set errorformat^=%-G%f:%l:\ warning:%m
 " Esc
 "imap <C-Space> <Esc>
 
-map Q gq
-
+" split navigation
 map <C-l> :wincmd l<cr>
 map <C-h> :wincmd h<cr>
 map <C-k> :wincmd k<cr>
 map <C-j> :wincmd j<cr>
 
-imap <S-tab> :wincmd w<cr>
-noremap <C-tab> :b#<cr>
-imap <C-tab> <esc>:b#<cr>
-map <C-S-tab> :bp!<cr>
-imap <C-S-tab> <esc>:bp!<cr>
+map <C-F1> :b1<CR>
+map <C-F1> :b1<CR>
 
-
-map <F1> :b1<CR>
-map <C-F1> :set diffopt^=iwhite<CR>
-map  <F2> :Explore<CR>
+map <F2> :Explore<CR>
 
 map <F3> :b1<CR>
-"map <F3> :w<CR>:w<CR>:w<CR>:w<CR>
+
+" ignore whitespace in diff mode
 map  <F4> :match Ignore /\r$/<CR>
+
 map  <C-F4> :call OcscopeMakeTags()<CR>
 map  <A-F4> :q<CR>
 
+" quickfix shortcuts
 map <F7> :cf .errfile.tmp<CR>
 map <S-F7> :cl<CR>
 map <C-F7> :cn<CR>
@@ -166,7 +167,7 @@ imap <S-F9> <C-o>:setlocal spell! spelllang=en_us<CR>
 map <S-Left> :bp<CR>
 map <S-Right> :bn<CR>
 
-set confirm
+"nmap <C-P> :Files .<CR>
 
 "iunmap <C-y>
 "unmap <C-a>
@@ -189,8 +190,11 @@ set guifont=Monospace\ 11
 "let g:netrw_winsize = 25
 let g:netrw_list_hide= '.*\.swp$,^\.git$,^\..*$,\~$'
 
+" ***************************************
+"  CSCOPE
+" ***************************************
 if filereadable(expand("~/.vim/cscope_maps.vim"))
-        source ~/.vim/cscope_maps.vim
+    source ~/.vim/cscope_maps.vim
 endif
 
 " ***************************************
@@ -222,7 +226,7 @@ hi DiffAdd term=bold ctermbg=223 guibg=White
 hi DiffChange term=bold ctermbg=223 guibg=#edb5cd
 hi DiffDelete term=bold cterm=bold ctermfg=4 ctermbg=217 gui=bold guifg=LightBlue guibg=#f6e8d0
 hi DiffText term=reverse cterm=bold ctermbg=229 gui=bold guibg=#ff8060
-hi Cursor guifg=bg guibg=fg
+hi Cursor guifg=bg guibg=fg 
 hi lCursor guifg=bg guibg=fg
 
 " Colors for syntax highlighting
@@ -242,6 +246,7 @@ endif
 "  DIFF MODE
 " ***************************************
 :if &diff
+map <C-F1> :set diffopt^=iwhite<CR>
 set noro
 hi Normal ctermbg=250 ctermfg=16 
 :endif
@@ -253,4 +258,3 @@ hi Normal ctermbg=250 ctermfg=16
 "                     [file] (default ".exrc" in the current directory),
 "                     unless it already exists.
 "
-
