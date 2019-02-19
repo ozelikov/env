@@ -49,12 +49,9 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 
@@ -120,7 +117,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-
 set -o vi
 export VISUAL=vi
 alias g=gvim
@@ -142,4 +138,12 @@ PATH="$HOME/srcs/scripts:$PATH"
 
 alias sshp='ssh -o PreferredAuthentications=password'
 alias scpp='scp -o PreferredAuthentications=password'
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+function gitcheckout() {
+    [[ ! -f ~/.fzf.bash ]] && echo "fzf is not installed" && exit 1
+    branch=$(git branch "$@" | fzf)
+    [[ -n $branch ]] && git checkout $branch
+}
 
