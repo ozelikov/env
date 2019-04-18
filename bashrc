@@ -126,12 +126,12 @@ alias gitdiff='git difftool -y -t xxdiff'
 alias gitdiffg='git difftool -y -t gvimdiff'
 alias gitdiffv='git difftool -y -t vimdiff'
 alias gitlogn='git --no-pager log --oneline --stat'
-alias gitlog='git log --oneline --stat'
+alias gitlog='git log --pretty="%C(nodim)%C(yellow)%h %C(green)%C(bold)%s %C(cyan)%C(dim)%d%C(white)"'
 alias gitdiffstash='gitdiff stash@{0}'
 
 alias vg=vagrant
 
-alias tmux="/usr/local/bin/tmux -2"
+alias tmux="/usr/bin/tmux -2"
 
 PATH="$HOME/srcs/scripts:$PATH"
 [[ -e ~/srcs/scripts/oautocomplete ]] && source ~/srcs/scripts/oautocomplete
@@ -141,9 +141,17 @@ alias scpp='scp -o PreferredAuthentications=password'
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-function gitcheckout() {
-    [[ ! -f ~/.fzf.bash ]] && echo "fzf is not installed" && exit 1
-    branch=$(git branch "$@" | fzf)
-    [[ -n $branch ]] && git checkout $branch
+function fstash() {
+    [[ ! -f ~/.fzf.bash ]] && echo "fzf is not installed" >&2  && exit 1
+    local stash=$(git stash list | fzf --reverse --border)
+    [[ -z $stash ]] && return
+    echo "$stash"| perl -npe 's/^([^:]+).*/$1/'
+}
+
+function fbranch() {
+    [[ ! -f ~/.fzf.bash ]] && echo "fzf is not installed" >&2  && exit 1
+    local branch=$(git branch -v "$@" | fzf --reverse --border)
+    [[ -z $branch ]] && return
+    echo "$branch"| perl -npe 's/^\s*\*?\s*(\S+).*$/$1/'
 }
 
