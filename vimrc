@@ -5,6 +5,8 @@ set nocompatible
 call plug#begin('~/.vim/plugged')
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'rust-lang/rust.vim'
 call plug#end()
 
 if filereadable(expand("~/.fzf.bash"))
@@ -20,7 +22,7 @@ endif
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
-set backup      " keep a backup file
+set nobackup    " don't create backup files
 set history=50  " keep 50 lines of command line history
 set ruler       " show the cursor position all the time
 set showcmd     " display incomplete commands
@@ -139,6 +141,16 @@ map <C-l> :wincmd l<cr>
 map <C-h> :wincmd h<cr>
 map <C-k> :wincmd k<cr>
 map <C-j> :wincmd j<cr>
+imap <C-l> <Esc> :wincmd l<cr>
+imap <C-h> <Esc> :wincmd h<cr>
+imap <C-k> <Esc> :wincmd k<cr>
+imap <C-j> <Esc> :wincmd j<cr>
+
+map <C-l>  :vertical res +3<cr>
+map <C-h>  :vertical res -3<cr>
+map <C-k>  :res +2<cr>
+map <C-j>  :res -2<cr>
+
 
 map <C-F1> :b1<CR>
 map <C-F1> :b1<CR>
@@ -149,8 +161,6 @@ map <F3> :b1<CR>
 
 " ignore whitespace in diff mode
 map  <F4> :match Ignore /\r$/<CR>
-
-map  <C-F4> :call OcscopeMakeTags()<CR>
 map  <A-F4> :q<CR>
 
 " quickfix shortcuts
@@ -167,18 +177,10 @@ imap <S-F9> <C-o>:setlocal spell! spelllang=en_us<CR>
 map <S-Left> :bp<CR>
 map <S-Right> :bn<CR>
 
-"nmap <C-P> :Files .<CR>
+nmap <C-P> :Files<CR>
 
 "iunmap <C-y>
 "unmap <C-a>
-
-":color desert
-:color peachpuff
-"set guifont=Lucida_Console:h12
-"set guifont=DejaVu_Sans_Mono:h11:cANSI
-
-set guifont=Monospace\ 11
-"set guifont=-adecw-screen-medium-r-normal--14-140-75-75-m-70-iso8859-1
 
 " ***************************************
 "  NETRW
@@ -198,8 +200,14 @@ if filereadable(expand("~/.vim/cscope_maps.vim"))
 endif
 
 " ***************************************
-"  COLORS
+"  COLORS and FONTS
 " ***************************************
+:color peachpuff
+set guifont=Monospace\ 11
+"set guifont=Lucida_Console:h12
+"set guifont=DejaVu_Sans_Mono:h11:cANSI
+"set guifont=-adecw-screen-medium-r-normal--14-140-75-75-m-70-iso8859-1
+
 if &t_Co > 255
 hi Normal ctermbg=223 ctermfg=16 guibg=PeachPuff guifg=Black
 hi SpecialKey term=bold ctermfg=4 guifg=Blue
@@ -241,6 +249,8 @@ hi Ignore cterm=bold ctermfg=7 guifg=bg
 hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
 hi Todo term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 endif
+
+":color delek
 
 " ***************************************
 "  DIFF MODE
