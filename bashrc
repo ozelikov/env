@@ -71,10 +71,14 @@ xterm*|rxvt*)
     ;;
 esac
 
+if [[ $(uname) != 'Darwin' ]] ; then
+    ls_options='--time-style=long-iso'
+fi
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto --time-style=long-iso'
+    alias ls="ls --color=auto $ls_options"
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -82,7 +86,7 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 else
-    alias ls='ls --time-style=long-iso'
+    alias ls="ls $ls_options"
 fi
 
 # colored GCC warnings and errors
@@ -131,7 +135,7 @@ alias gitdiffstash='gitdiff stash@{0}'
 
 alias vg=vagrant
 
-alias tmux="/usr/bin/tmux -2"
+alias tmux="tmux -2"
 
 PATH="$HOME/srcs/scripts:$PATH"
 [[ -e ~/srcs/scripts/oautocomplete ]] && source ~/srcs/scripts/oautocomplete
