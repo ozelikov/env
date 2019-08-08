@@ -2,6 +2,8 @@
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
+set encoding=utf-8
+
 call plug#begin('~/.vim/plugged')
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -107,12 +109,21 @@ function! GitBranch()
     let l_branch = system(l_cmd)
     if l_branch != ''
         return '   [' . substitute(l_branch, '\n', '', 'g') . ']'
-    en
+    endif
+    return ''
+endfunction
+
+function! OGitBranch()
+    if filereadable(expand(".git/HEAD"))
+        for line in readfile(".git/HEAD", '', 1)
+            return substitute(line, '.*/', '', 'g')
+        endfor
+    endif
     return ''
 endfunction
 
 set laststatus=2
-set statusline +=%{GitBranch()}
+set statusline +=%{OGitBranch()}
 set statusline +=\ %<%F            "full path
 set statusline +=\ %m\ %r          "modified flag
 " set statusline +=%11*%{GitBranch()}%*
@@ -127,7 +138,7 @@ set statusline +=%4v\              "virtual column number
 " QUICKFIX 
 " ***************************************
 " ignore warnings
-set errorformat^=%-G%f:%l:\ warning:%m
+"set errorformat^=%-G%f:%l:\ warning:%m
 
 
 " ***************************************
@@ -158,6 +169,7 @@ map <C-F1> :b1<CR>
 map <F2> :Explore<CR>
 
 map <F3> :b1<CR>
+map <F1> :b1<CR>
 
 " ignore whitespace in diff mode
 map  <F4> :match Ignore /\r$/<CR>
