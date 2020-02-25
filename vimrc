@@ -9,6 +9,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'rust-lang/rust.vim'
+Plug 'Yggdroot/indentLine'
 call plug#end()
 
 if filereadable(expand("~/.fzf.bash"))
@@ -47,6 +48,12 @@ set visualbell
 set foldcolumn=2
 set confirm
 
+"setlocal foldmethod=syntax
+
+" Persist the undo tree for each file
+set undofile
+set undodir^=~/.vim/undo//
+
 "command Paste execute 'set noai | insert | set ai'
 
 " Switch syntax highlighting on, when the terminal has colors
@@ -81,24 +88,32 @@ else
 
 endif " has("autocmd")
 
-"set textwidth=80
-"au BufNewFile,BufRead *.c,*.h exec 'match Todo /\%>' .  &textwidth . 'v.\+/'
-"au BufNewFile,BufRead *.h exec 'match Todo /\%>' .  &textwidth . 'v.\+/'
-" For all text files set 'shiftwidth' to 2 characters.
-autocmd FileType text setlocal shiftwidth=2 textwidth=79
-" For all C, C++ files set 'textwidth' to 80 characters.
-" autocmd FileType c setlocal textwidth=80
-" autocmd FileType cpp setlocal textwidth=80
+
+set textwidth=100
+"autocmd Syntax * syn match cSpaceError /\%>100v.\+/ containedin=ALL
+" For all C, C++ files set 'textwidth' to 100 characters.
+autocmd FileType c setlocal textwidth=100
+autocmd FileType cpp setlocal textwidth=100
 " For all C, C++ files set 'shiftwidth' to 4 characters.
 autocmd FileType c setlocal shiftwidth=4
 autocmd FileType cpp setlocal shiftwidth=4
 autocmd FileType sh setlocal shiftwidth=4
-autocmd FileType c set cino=:0,(s,u0,U1
-autocmd FileType cpp set cino=:0,(s,u0,U1,g0
+autocmd FileType c set cino=(s,u0,U1,l1
+autocmd FileType cpp set cino=(s,u0,U1,g0,N-s,E-s,l1
 autocmd FileType perl setlocal shiftwidth=4
+" For all text files set 'shiftwidth' to 2 characters.
+autocmd FileType text setlocal shiftwidth=2 textwidth=79
+
+let c_space_errors=1
+
 " do not ident on #
 "autocmd FileType c set cink="0{,0},0),:,0,!^F,o,O,e"
 "autocmd FileType cpp set cink="0{,0},0),:,0,!^F,o,O,e"
+
+" ***************************************
+" indentLine
+" ***************************************
+let g:indentLine_char_list = ['.']
 
 " ***************************************
 " STATUSLINE 
@@ -138,7 +153,7 @@ set statusline +=%4v\              "virtual column number
 " QUICKFIX 
 " ***************************************
 " ignore warnings
-"set errorformat^=%-G%f:%l:\ warning:%m
+set errorformat^=%-G%f:%l:\ warning:%m
 
 
 " ***************************************
@@ -260,6 +275,7 @@ hi Type term=underline cterm=bold ctermfg=35 gui=bold guifg=SeaGreen
 hi Ignore cterm=bold ctermfg=7 guifg=bg
 hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
 hi Todo term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
+hi cSpaceError ctermbg=250 ctermfg=16 
 endif
 
 ":color delek
@@ -279,4 +295,6 @@ hi Normal ctermbg=250 ctermfg=16
 " :mk[exrc] [file]    Write current key mappings and changed options to
 "                     [file] (default ".exrc" in the current directory),
 "                     unless it already exists.
+" :version            
+" :echo $VIMRUNTIME  
 "
