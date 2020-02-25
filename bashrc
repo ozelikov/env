@@ -14,10 +14,11 @@ HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
+PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=10000
+HISTFILESIZE=20000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -56,8 +57,10 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
+    #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
+    #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
@@ -123,6 +126,7 @@ fi
 
 set -o vi
 export VISUAL=vi
+export DISPLAY=:0
 alias g=gvim
 
 alias gitstat='git status -sb'
@@ -132,6 +136,8 @@ alias gitdiffv='git difftool -y -t vimdiff'
 alias gitlogn='git --no-pager log --oneline --stat'
 alias gitlog='git log --pretty="%C(nodim)%C(yellow)%h %C(green)%C(bold)%s %C(cyan)%C(dim)%d%C(white)"'
 alias gitdiffstash='gitdiff stash@{0}'
+
+alias cgrep='grep -r --include=*.c --include=*.cpp --include=*.h --include=*.hpp --include=*.tpp'
 
 alias vg=vagrant
 
@@ -144,6 +150,10 @@ alias sshp='ssh -o PreferredAuthentications=password'
 alias scpp='scp -o PreferredAuthentications=password'
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# Map Ctrl-Z in bash to 'fg'
+stty susp undef
+bind '"\C-z":"fg\015"'
 
 function fstash() {
     [[ ! -f ~/.fzf.bash ]] && echo "fzf is not installed" >&2  && exit 1
