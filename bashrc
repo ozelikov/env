@@ -56,9 +56,18 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+_my_path()
+{
+    local str=${PWD/$HOME/"~"}
+    if [[ ${#str} -gt 35 ]]; then
+        str="${str:0:15}...${str:$((${#str}-20)):20}"
+    fi
+    echo $str
+}
+
 if [ "$color_prompt" = yes ]; then
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
 else
     #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
@@ -130,8 +139,8 @@ export DISPLAY=:0
 alias g=gvim
 
 alias gitstat='git status -sb'
-alias gitdiff='git difftool -y -t xxdiff'
-alias gitdiffg='git difftool -y -t gvimdiff'
+#alias gitdiff='git difftool -y -t xxdiff'
+alias gitdiff='git difftool -y -t vimdiff'
 alias gitdiffv='git difftool -y -t vimdiff'
 alias gitlogn='git --no-pager log --oneline --stat'
 alias gitlog='git log --pretty="%C(nodim)%C(yellow)%h %C(green)%C(bold)%s %C(cyan)%C(dim)%d%C(white)"'
@@ -168,4 +177,3 @@ function fbranch() {
     [[ -z $branch ]] && return
     echo "$branch"| perl -npe 's/^\s*\*?\s*(\S+).*$/$1/'
 }
-
