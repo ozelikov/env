@@ -8,7 +8,6 @@ call plug#begin('~/.vim/plugged')
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'rust-lang/rust.vim'
 Plug 'Yggdroot/indentLine'
 call plug#end()
 
@@ -48,6 +47,8 @@ set visualbell
 set foldcolumn=2
 set confirm
 
+"set clipboard=unnamedplus
+
 "setlocal foldmethod=syntax
 
 " Persist the undo tree for each file
@@ -69,18 +70,20 @@ set wildmenu  "autocomplete like bash
 " Only do this part when compiled with support for autocommands.
 if has("autocmd")
   filetype plugin indent on
-  augroup vimrcEx
-  au!
-
-  " When editing a file, always jump to the last known cursor position.
-  " Don't do it when the position is invalid or when inside an event handler
-  " (happens when dropping a file on gvim).
-  autocmd BufReadPost *
-    \ if line("'\"") > 0 && line("'\"") <= line("$") |
-    \   exe "normal! g`\"" |
-    \ endif
-
-  augroup END
+  if ! &diff
+    augroup vimrcEx
+    au!
+  
+    " When editing a file, always jump to the last known cursor position.
+    " Don't do it when the position is invalid or when inside an event handler
+    " (happens when dropping a file on gvim).
+    autocmd BufReadPost *
+      \ if line("'\"") > 0 && line("'\"") <= line("$") |
+      \   exe "normal! g`\"" |
+      \ endif
+  
+    augroup END
+  endif
 
 else
 
@@ -116,18 +119,8 @@ let c_space_errors=1
 let g:indentLine_char_list = ['.']
 
 " ***************************************
-" STATUSLINE 
+" GIT TOOLS
 " ***************************************
-function! GitBranch()
-    let l_path=expand('%:p:h')
-    let l_cmd='cd ' . l_path . ';git rev-parse --abbrev-ref HEAD 2> /dev/null'
-    let l_branch = system(l_cmd)
-    if l_branch != ''
-        return '   [' . substitute(l_branch, '\n', '', 'g') . ']'
-    endif
-    return ''
-endfunction
-
 function! OGitBranch()
     if filereadable(expand(".git/HEAD"))
         for line in readfile(".git/HEAD", '', 1)
@@ -137,16 +130,24 @@ function! OGitBranch()
     return ''
 endfunction
 
+function! OMakeGitDiffView()
+    if filereadable(expand(".git/HEAD"))
+        :enew
+        :set buftype=nofile
+        :r !git status -sb
+    endif
+endfunction
+
+" ***************************************
+" STATUSLINE 
+" ***************************************
 set laststatus=2
 set statusline +=%{OGitBranch()}
 set statusline +=\ %<%F            "full path
 set statusline +=\ %m\ %r          "modified flag
-" set statusline +=%11*%{GitBranch()}%*
-" set statusline +=%4*\ %<%F%*            "full path
 set statusline +=%=%5l             "current line
 set statusline +=/%L               "total lines
 set statusline +=%4v\              "virtual column number
-" set statusline=\ %F%m%r%h\ %w\ \ \ %{GitBranch()}
 " hi User1 guifg=#292b00  guibg=#f4f597
 
 " ***************************************
@@ -172,23 +173,21 @@ imap <C-h> <Esc> :wincmd h<cr>
 imap <C-k> <Esc> :wincmd k<cr>
 imap <C-j> <Esc> :wincmd j<cr>
 
-map <C-l>  :vertical res +3<cr>
-map <C-h>  :vertical res -3<cr>
-map <C-k>  :res +2<cr>
-map <C-j>  :res -2<cr>
+map <C-S-l>  :vertical res +3<cr>
+map <C-S-h>  :vertical res -3<cr>
+map <C-S-k>  :res +2<cr>
+map <C-S-j>  :res -2<cr>
 
 
 map <C-F1> :b1<CR>
-map <C-F1> :b1<CR>
-
 map <F2> :Explore<CR>
 
 map <F3> :b1<CR>
-map <F1> :b1<CR>
 
-" ignore whitespace in diff mode
-map  <F4> :match Ignore /\r$/<CR>
-map  <A-F4> :q<CR>
+map <A-F4> :q<CR>
+map <F4> :call OMakeGitDiffView() <CR>
+
+map <F6> :buffers<CR>:e #
 
 " quickfix shortcuts
 map <F7> :cf .errfile.tmp<CR>
@@ -196,7 +195,6 @@ map <S-F7> :cl<CR>
 map <C-F7> :cn<CR>
 map <C-S-F7> :cp<CR>
 
-map <F6> :buffers<CR>:e #
 
 map <S-F9> :setlocal spell! spelllang=en_us<CR>
 imap <S-F9> <C-o>:setlocal spell! spelllang=en_us<CR>
@@ -286,9 +284,16 @@ endif
 :if &diff
 map <C-F1> :set diffopt^=iwhite<CR>
 set noro
+set noswapfile
 hi Normal ctermbg=250 ctermfg=16 
+" ignore whitespace in diff mode
+map <F4> :match Ignore /\r$/<CR>
+nnoremap ZZ :wqa<CR>
+nnoremap XX :qa<CR>
+nnoremap <C-q> :qa<CR>
+map <C-n> ]czz
+map <C-b> [czz
 :endif
-
 
 " My Tips
 "
