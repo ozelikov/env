@@ -8,7 +8,8 @@ call plug#begin('~/.vim/plugged')
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'Yggdroot/indentLine'
+"Plug 'Yggdroot/indentLine'
+Plug 'dr-kino/cscope-maps'
 call plug#end()
 
 if filereadable(expand("~/.fzf.bash"))
@@ -216,13 +217,6 @@ nmap <C-P> :Files<CR>
 "let g:netrw_altv = 1
 "let g:netrw_winsize = 25
 let g:netrw_list_hide= '.*\.swp$,^\.git$,^\..*$,\~$'
-
-" ***************************************
-"  CSCOPE
-" ***************************************
-if filereadable(expand("~/.vim/cscope_maps.vim"))
-    source ~/.vim/cscope_maps.vim
-endif
 
 " ***************************************
 "  COLORS and FONTS
