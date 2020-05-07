@@ -1,0 +1,126 @@
+set -g prefix C-a
+set -g base-index 1
+
+#  Windows (tabs)
+#  c  create window
+#  w  list windows
+#  n  next window
+#  p  previous window
+#  f  find window
+#  ,  name window
+#  &  kill window
+#  Panes (splits)
+#  %  vertical split
+#  "  horizontal split
+#  
+#  o  swap panes
+#  q  show pane numbers
+#  x  kill pane
+#  +  break pane into window (e.g. to select text by mouse to copy)
+#  -  restore pane from window
+#  <prefix> q (Show pane numbers, when the numbers show up type the key to goto that pane)
+#  <prefix> { (Move the current pane left)
+#  <prefix> } (Move the current pane right)
+#  <prefix> z toggle pane zoom
+#
+#  <prefix> C-o - move panes around
+#  <prefix> <space> - change layout
+#
+#  Move pane to another window:
+#  C-A !   - break the pane out via break-pane.
+#  :join-pane [-h] [-v] -t <int>, where <int> is the index of the window (h/v - split)
+
+# Automatically set window title
+set-window-option -g automatic-rename on
+set-option -g set-titles on
+
+set -g default-terminal screen-256color
+set -g status-keys vi
+set -g history-limit 10000
+
+setw -g mode-keys vi
+
+setw -g mouse on
+
+setw -g monitor-activity on
+
+bind v split-window -h
+bind s split-window -v
+
+bind V split-window -h -c "#{pane_current_path}"
+bind S split-window -v -c "#{pane_current_path}"
+
+bind -n M-J resize-pane -D
+bind -n M-K resize-pane -U
+bind -n M-H resize-pane -L
+bind -n M-L resize-pane -R
+
+# Vim style copy&paste
+
+bind-key -T edit-mode-vi Up   send-keys -X history-up
+bind-key -T edit-mode-vi Down send-keys -X history-down
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "clip.exe"
+bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "clip.exe"
+bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+
+bind -n M-i copy-mode
+bind -n M-p run "tmux set-buffer \"$(powershell.exe -Command Get-Clipboard)\"; tmux paste-buffer"
+
+# Use Alt-vim keys without prefix key to switch panes
+unbind-key -n C-h
+unbind-key -n C-j
+unbind-key -n C-k
+unbind-key -n C-l
+
+# smart pane switching with awareness of vim splits
+bind -n M-h run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-h) || tmux select-pane -L"
+bind -n M-j run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-j) || tmux select-pane -D"
+bind -n M-k run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-k) || tmux select-pane -U"
+bind -n M-l run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-l) || tmux select-pane -R"
+#bind -n M-\  run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys 'C-\\') || tmux select-pane -l"
+
+
+# bind -n C-b run-shell "tmux send-keys \$(fbranch)"
+# Ctrl+L - clear terminal
+bind -n M-z send-keys "clear" \; send-keys "Enter"
+
+# delay for escape key press
+set -sg escape-time 2
+
+# Reload tmux config
+bind r source ~/.tmux.conf
+
+# Unbind unused keys
+unbind-key -n C-b
+unbind-key -n C-q
+unbind-key -n C-H
+unbind-key -n C-L
+
+# Status Line
+#set -g status-interval 1
+#set -g status-left-length 30
+#set -g status-left '#[fg=colour11](#S) #(whoami)'
+#set -g automatic-rename on
+#set -g automatic-rename-format '#{b:pane_current_path}'
+
+set -g window-status-activity-style 'fg=colour118,bg=colour52'
+set -g window-status-current-style 'bg=colour118,fg=colour52'
+set -g status-style bg=colour52,fg=colour118,default
+set -g status-interval 1
+set -g status-justify centre # center align window list
+set -g status-left-length 50
+set -g status-right-length 140
+set -g status-left '#[fg=colour11] #(cd #{pane_current_path}; git rev-parse --abbrev-ref HEAD)'
+set -g status-right '#[fg=white,bg=default]%a %H:%M:%S #[default] #[fg=colour39]%Y-%m-%d'
+
+# COLORS
+# color map:
+# for i in {0..255}; do printf "\x1b[38;5;${i}mcolor%-5i\x1b[0m" $i ; if ! (( ($i + 1 ) % 8 )); then echo ; fi ; done
+# for i in {0..255}; do printf "\e[48;5;${i}mcolor%-5i\x1b[0m" $i ; if ! (( ($i + 1 ) % 8 )); then echo ; fi ; done
+#
+set -g window-style 'fg=colour247,bg=black'
+set -g window-active-style 'fg=colour250,bg=black'
+set -g pane-border-style bg=colour235,fg=colour238
+set -g pane-active-border-style bg=colour236,fg=colour51
+#-------------------------------------------------------#
