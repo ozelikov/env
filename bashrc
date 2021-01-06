@@ -65,9 +65,16 @@ _my_path()
     echo $str
 }
 
+_my_host()
+{
+    local host=${HOSTNAME-$(hostname)}
+    [[ $host = "TLVWIN2JHCPQ2" ]] && host="laptop"
+    echo $host
+}
+
 if [ "$color_prompt" = yes ]; then
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$(_my_host)\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
 else
     #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
