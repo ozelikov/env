@@ -8,6 +8,13 @@ case $- in
       *) return;;
 esac
 
+USER_AND_HOSTNAME="$(whoami)@$(hostname)"
+if [[ $USER_AND_HOSTNAME = "ozelikov@ozelikov-linux" ]] ; then
+    USER_AND_HOSTNAME="oz@dev"
+elif [[ $USER_AND_HOSTNAME = "ozelikov@TLVWIN2JHCPQ2" ]] ; then
+    USER_AND_HOSTNAME="oz@LAPTOP"
+fi
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -43,7 +50,8 @@ case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 
-echo -ne "\033P\033\033[0 q\033\\ "
+# Some fix for tmux
+echo -ne "\033P\033\033[0 q\033\\"
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
@@ -67,24 +75,9 @@ _my_path()
     echo $str
 }
 
-_my_user_host()
-{
-    local host=${HOSTNAME-$(hostname)}
-    local user=${USER-$(whoami)}
-    local str="$user@$host"
-
-    if [[ $str = "ozelikov@ozelikov-linux" ]] ; then
-        str="oz@dev"
-    elif [[ $str = "ozelikov@TLVWIN2JHCPQ2" ]] ; then
-        str="oz@LAPTOP"
-    fi
-
-    echo $str
-}
-
 if [ "$color_prompt" = yes ]; then
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-    PS1='\[\033[01;32m\]$(_my_user_host)\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
+    PS1='\[\033[01;32m\]$USER_AND_HOSTNAME\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
 else
     #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
