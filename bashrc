@@ -43,6 +43,8 @@ case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 
+echo -ne "\033P\033\033[0 q\033\\ "
+
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
@@ -72,9 +74,20 @@ _my_host()
     echo $host
 }
 
+_my_user_host()
+{
+    str="$USER@$HOSTNAME"
+    if [[ $str = "ozelikov@ozelikov-linux" ]] ; then
+        str="oz@dev"
+    elif [[ $str = "ozelikov@TLVWIN2JHCPQ2" ]] ; then
+        str="oz@LAPTOP"
+    fi
+    echo $str
+}
+
 if [ "$color_prompt" = yes ]; then
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$(_my_host)\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
+    PS1='\[\033[01;32m\]$(_my_user_host)\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
 else
     #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
