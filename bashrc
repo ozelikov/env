@@ -67,21 +67,18 @@ _my_path()
     echo $str
 }
 
-_my_host()
-{
-    local host=${HOSTNAME-$(hostname)}
-    [[ $host = "TLVWIN2JHCPQ2" ]] && host="laptop"
-    echo $host
-}
-
 _my_user_host()
 {
-    str="$USER@$HOSTNAME"
+    local host=${HOSTNAME-$(hostname)}
+    local user=${USER-$(whoami)}
+    local str="$user@$host"
+
     if [[ $str = "ozelikov@ozelikov-linux" ]] ; then
         str="oz@dev"
     elif [[ $str = "ozelikov@TLVWIN2JHCPQ2" ]] ; then
         str="oz@LAPTOP"
     fi
+
     echo $str
 }
 
