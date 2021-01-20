@@ -5,12 +5,26 @@ set nocompatible
 set encoding=utf-8
 
 call plug#begin('~/.vim/plugged')
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'christoomey/vim-tmux-navigator'
 "Plug 'Yggdroot/indentLine'
-Plug 'dr-kino/cscope-maps'
+Plug 'vim-scripts/indentpython.vim'
 call plug#end()
+
+if exists('$TMUX')
+    let g:fzf_layout = { 'tmux': '-p90%,60%' }
+else
+    let g:fzf_layout = { 'window': '-tabnew' }
+endif
+
+if &term =~ '^screen'
+    " tmux will send xterm-style keys when its xterm-keys option is on
+    execute "set <xUp>=\e[1;*A"
+    execute "set <xDown>=\e[1;*B"
+    execute "set <xRight>=\e[1;*C"
+    execute "set <xLeft>=\e[1;*D"
+endif
 
 if filereadable(expand("~/.fzf.bash"))
     inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
@@ -48,7 +62,7 @@ set visualbell
 set foldcolumn=2
 set confirm
 
-"set clipboard=unnamedplus
+set clipboard+=unnamed
 
 "setlocal foldmethod=syntax
 
@@ -102,9 +116,10 @@ autocmd FileType cpp setlocal textwidth=100
 autocmd FileType c setlocal shiftwidth=4
 autocmd FileType cpp setlocal shiftwidth=4
 autocmd FileType sh setlocal shiftwidth=4
-autocmd FileType c set cino=(s,u0,U1,l1
-autocmd FileType cpp set cino=(s,u0,U1,g0,N-s,E-s,l1
+autocmd FileType c set cino=(s,u0,U1,l1:0
+autocmd FileType cpp set cino=(s,u0,U1,g0,N-s,E-s,l1:0
 autocmd FileType perl setlocal shiftwidth=4
+"autocmd FileType python set cino=(0
 " For all text files set 'shiftwidth' to 2 characters.
 autocmd FileType text setlocal shiftwidth=2 textwidth=79
 
@@ -132,12 +147,30 @@ function! OGitBranch()
 endfunction
 
 function! OMakeGitDiffView()
+    " Example of command:
+    ":enew | set bt=nofile | r !git log -1 --stat
+
     if filereadable(expand(".git/HEAD"))
         :enew
         :set buftype=nofile
         :r !git status -sb
     endif
 endfunction
+
+function! OGrep()
+    " Example of command:
+    ":enew | set bt=nofile | r !git log -1 --stat
+    :let text = system("git grep -wn " . expand("<cword>"))
+    :enew
+    :set buftype=nofile
+    :put=text
+endfunction
+
+function! OGrepSplit()
+    :vertical
+    :e expand("<cword>")
+endfunction
+
 
 " ***************************************
 " STATUSLINE 
@@ -179,6 +212,8 @@ map <C-S-h>  :vertical res -3<cr>
 map <C-S-k>  :res +2<cr>
 map <C-S-j>  :res -2<cr>
 
+" increment value shortcut 
+nnoremap <C-b> <C-a>
 
 map <C-F1> :b1<CR>
 map <F2> :Explore<CR>
@@ -186,7 +221,10 @@ map <F2> :Explore<CR>
 map <F3> :b1<CR>
 
 map <A-F4> :q<CR>
-map <F4> :call OMakeGitDiffView() <CR>
+"map <F4> :call OMakeGitDiffView() <CR>
+map <F4> :GFiles?<CR>
+
+map <F5> :!otags . <CR> :cscope reset <CR>
 
 map <F6> :buffers<CR>:e #
 
@@ -204,6 +242,8 @@ map <S-Left> :bp<CR>
 map <S-Right> :bn<CR>
 
 nmap <C-P> :Files<CR>
+nmap <F8> :call OGrep() <CR> 
+nmap <C-F8> :call OGrepSplit() <CR> 
 
 "iunmap <C-y>
 "unmap <C-a>
@@ -221,6 +261,7 @@ let g:netrw_list_hide= '.*\.swp$,^\.git$,^\..*$,\~$'
 " ***************************************
 "  COLORS and FONTS
 " ***************************************
+syntax enable
 :color peachpuff
 set guifont=Monospace\ 11
 "set guifont=Lucida_Console:h12
@@ -282,6 +323,7 @@ set noswapfile
 hi Normal ctermbg=250 ctermfg=16 
 " ignore whitespace in diff mode
 map <F4> :match Ignore /\r$/<CR>
+map <F5> :set diffopt^=iwhite<CR>
 nnoremap ZZ :wqa<CR>
 nnoremap XX :qa<CR>
 nnoremap <C-q> :qa<CR>
@@ -297,3 +339,130 @@ map <C-b> [czz
 " :version            
 " :echo $VIMRUNTIME  
 "
+"
+
+" cscope
+if has("cscope")
+
+"set nocscopetag
+
+function! Cscope(option, query)
+  let color = 'print("\x1b[38;5;13m$F[0] $F[2] ->  \x1b[38;5;7m@F[3..$#F]\n")'
+  let preview = 'print("\x1b[38;5;76m$_\x1b[0m") if $. == $line; print "$_" if $. != $line'
+
+  let opts = {
+  \ 'source':  "cscope -dL" . a:option . " " . a:query . " | perl -nae '" . color . "'",
+  \ 'options': ['--ansi', '--prompt', '> ',
+  \             '--multi', '--bind', 'ctrl-j:down,ctrl-k:up',
+  \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104',
+  \             '--preview', "cat {1} | perl -ne '$line={2}; " . preview . "'",
+  \             '--preview-window', '+{2}-10'],
+  \ 'down': '70%'
+  \ }
+  function! opts.sink(lines) 
+    let data = split(a:lines)
+    execute 'e ' . '+' . data[1] . ' ' . data[0]
+  endfunction
+  call fzf#run(opts)
+endfunction
+
+function! CscopeAllSyms()
+  let color = 'print("\x1b[38;5;13m$F[0] $F[2] ->  \x1b[38;5;7m@F[3..$#F]\n")'
+  let preview = 'print("\x1b[38;5;76m$_\x1b[0m") if $. == $line; print "$_" if $. != $line'
+
+  let opts = {
+  \ 'source':  "cscope -dL" . a:option . " " . a:query . " | perl -nae '" . color . "'",
+  \ 'options': ['--ansi', '--prompt', '> ',
+  \             '--multi', '--bind', 'ctrl-j:down,ctrl-k:up',
+  \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104',
+  \             '--preview', "cat {1} | perl -ne '$line={2}; " . preview . "'",
+  \             '--preview-window', '+{2}-10'],
+  \ 'down': '70%'
+  \ }
+  function! opts.sink(lines) 
+    let data = split(a:lines)
+    execute 'e ' . '+' . data[1] . ' ' . data[0]
+  endfunction
+  call fzf#run(opts)
+endfunction
+
+
+function! CscopeQuery(option)
+  call inputsave()
+  if a:option == '0'
+    let query = input('Find C symbol: ')
+  elseif a:option == '1'
+    let query = input('Find definition: ')
+  elseif a:option == '2'
+    let query = input('???: ')
+  elseif a:option == '3'
+    let query = input('???: ')
+  elseif a:option == '4'
+    let query = input('???: ')
+  elseif a:option == '6'
+    let query = input('Egrep: ')
+  elseif a:option == '7'
+    let query = input('Find file: ')
+  elseif a:option == '8'
+    let query = input('Find files #including this file: ')
+  elseif a:option == '9'
+    let query = input('Assignments to: ')
+  else
+    echo "Invalid option!"
+    return
+  endif
+  call inputrestore()
+  if query != ""
+    call Cscope(a:option, query)
+  else
+    echom "Cancelled Search!"
+  endif
+endfunction
+
+
+" 0: Find this C symbol
+nnoremap <silent> <Leader>cs :call Cscope('0', expand('<cword>'))<CR>
+nmap <C-\>s :call Cscope('0', expand('<cword>'))<CR>
+nnoremap <silent> <Leader><Leader>cs :call CscopeQuery('0')<CR>
+
+" 1: Find this definition
+nnoremap <silent> <Leader>cg :call Cscope('1', expand('<cword>'))<CR>
+nmap <C-\>g :call Cscope('1', expand('<cword>'))<CR>
+nnoremap <silent> <Leader><Leader>cg :call CscopeQuery('1')<CR>
+
+" 2: Find functions called by this function
+"nnoremap <silent> <Leader>cd :call Cscope('2', expand('<cword>'))<CR>
+"nnoremap <silent> <Leader><Leader>cd :call CscopeQuery('2')<CR>
+
+" 3: Find functions calling this function
+"nnoremap <silent> <Leader>cc :call Cscope('3', expand('<cword>'))<CR>
+"nmap <C-\>c :call Cscope('3', expand('<cword>'))<CR>
+"nnoremap <silent> <Leader><Leader>cc :call CscopeQuery('3')<CR>
+
+" 4: Find this text string
+"nnoremap <silent> <Leader>cf :call Cscope('4', expand('<cword>'))<CR>
+
+" 5: Find any symbol
+nnoremap <silent> <Leader><Leader>ca :call CscopeAllSyms()<CR>
+
+" 6: Find this egrep pattern
+nnoremap <silent> <Leader>ce :call Cscope('6', expand('<cword>'))<CR>
+nmap <C-\>e :call Cscope('6', expand('<cword>'))<CR>
+nnoremap <silent> <Leader><Leader>ce :call CscopeQuery('6')<CR>
+
+" 7: Find this file
+nnoremap <silent> <Leader>cf :call Cscope('7', expand('<cfile>'))<CR>
+nmap <C-\>f :call Cscope('7', expand('<cfile>'))<CR>
+nnoremap <silent> <Leader><Leader>cf :call CscopeQuery('7')<CR>
+
+" 8: Find files #including this file
+nnoremap <silent> <Leader>ci :call Cscope('8', expand('<cfile>'))<CR>
+nmap <C-\>i :call Cscope('8', expand('<cfile>'))<CR>
+nnoremap <silent> <Leader><Leader>ci :call CscopeQuery('8')<CR>
+
+" 9: Find places where this symbol is assigned a value
+nnoremap <silent> <Leader>ct :call Cscope('9', expand('<cword>'))<CR>
+nmap <C-\>t :call Cscope('9', expand('<cword>'))<CR>
+nnoremap <silent> <Leader><Leader>ct :call CscopeQuery('9')<CR>
+
+endif " cscope
