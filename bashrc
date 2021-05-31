@@ -8,6 +8,8 @@ case $- in
       *) return;;
 esac
 
+export LC_ALL="en_US.UTF-8"
+
 USER_AND_HOSTNAME="$(whoami)@$(hostname)"
 if [[ $USER_AND_HOSTNAME = "ozelikov@ozelikov-linux" ]] ; then
     USER_AND_HOSTNAME="oz@dev"
@@ -77,7 +79,7 @@ _my_path()
 
 if [ "$color_prompt" = yes ]; then
     #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-    PS1='\[\033[01;32m\]$USER_AND_HOSTNAME\[\033[00m\]:\[\033[01;34m\]$(_my_path)\[\033[00m\]\$ '
+    PS1='\[\033[01;32m\]$USER_AND_HOSTNAME\[\033[00m\]:\[\033[35;1m\]$(_my_path)\[\033[00m\]\$ '
 else
     #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
@@ -100,7 +102,8 @@ fi
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls="ls --color=auto $ls_options"
+    alias ls="ls $ls_options"
+    #alias ls="ls --color=auto $ls_options"
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
