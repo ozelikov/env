@@ -224,7 +224,7 @@ map <A-F4> :q<CR>
 "map <F4> :call OMakeGitDiffView() <CR>
 map <F4> :GFiles?<CR>
 
-map <F5> :!otags . <CR> :cscope reset <CR>
+map <F5> :!otags<CR> :cscope reset <CR>
 
 map <F6> :buffers<CR>:e #
 
@@ -407,6 +407,11 @@ function! CscopeQuery(option)
     let query = input('Find files #including this file: ')
   elseif a:option == '9'
     let query = input('Assignments to: ')
+  elseif a:option == '10'
+    let query = input('Number of commits back: ')
+    "execute 'enew | set bt=nofile | r !git log --oneline --name-only --stat=100 -' . query
+    execute 'enew | set bt=nofile | r !git diff --name-only --stat HEAD~' . query
+    return
   else
     echo "Invalid option!"
     return
@@ -464,5 +469,8 @@ nnoremap <silent> <Leader><Leader>ci :call CscopeQuery('8')<CR>
 nnoremap <silent> <Leader>ct :call Cscope('9', expand('<cword>'))<CR>
 nmap <C-\>t :call Cscope('9', expand('<cword>'))<CR>
 nnoremap <silent> <Leader><Leader>ct :call CscopeQuery('9')<CR>
+
+" 10: Find files changed in recent commits
+nnoremap <silent> <Leader><Leader>g :call CscopeQuery('10')<CR>
 
 endif " cscope
