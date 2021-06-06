@@ -4,13 +4,15 @@ set nocompatible
 
 set encoding=utf-8
 
-call plug#begin('~/.vim/plugged')
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'christoomey/vim-tmux-navigator'
-"Plug 'Yggdroot/indentLine'
-Plug 'vim-scripts/indentpython.vim'
-call plug#end()
+if isdirectory(expand("~/.vim/plugged"))
+    call plug#begin('~/.vim/plugged')
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+    Plug 'christoomey/vim-tmux-navigator'
+    "Plug 'Yggdroot/indentLine'
+    Plug 'vim-scripts/indentpython.vim'
+    call plug#end()
+endif
 
 if exists('$TMUX')
     let g:fzf_layout = { 'tmux': '-p90%,60%' }
@@ -207,10 +209,10 @@ imap <C-h> <Esc> :wincmd h<cr>
 imap <C-k> <Esc> :wincmd k<cr>
 imap <C-j> <Esc> :wincmd j<cr>
 
-map <C-S-l>  :vertical res +3<cr>
-map <C-S-h>  :vertical res -3<cr>
-map <C-S-k>  :res +2<cr>
-map <C-S-j>  :res -2<cr>
+"map <C-S-l>  :vertical res +3<cr>
+"map <C-S-h>  :vertical res -3<cr>
+"map <C-S-k>  :res +2<cr>
+"map <C-S-j>  :res -2<cr>
 
 " increment value shortcut 
 nnoremap <C-b> <C-a>
