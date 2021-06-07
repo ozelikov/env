@@ -4,7 +4,7 @@ set nocompatible
 
 set encoding=utf-8
 
-if isdirectory(expand("~/.vim/plugged"))
+if filereadable(expand("~/.vim/autoload/plug.vim"))
     call plug#begin('~/.vim/plugged')
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
