@@ -13,8 +13,6 @@ export LC_ALL="en_US.UTF-8"
 USER_AND_HOSTNAME="$(whoami)@$(hostname)"
 if [[ $USER_AND_HOSTNAME = "ozelikov@ozelikov-linux" ]] ; then
     USER_AND_HOSTNAME="oz@dev"
-elif [[ $USER_AND_HOSTNAME = "ozelikov@TLVWIN2JHCPQ2" ]] ; then
-    USER_AND_HOSTNAME="oz@LAPTOP"
 fi
 
 # don't put duplicate lines or lines starting with space in the history.
