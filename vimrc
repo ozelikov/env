@@ -9,6 +9,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
     Plug 'christoomey/vim-tmux-navigator'
+    "Plug 'tpope/vim-fugitive'
     "Plug 'Yggdroot/indentLine'
     Plug 'vim-scripts/indentpython.vim'
     call plug#end()
@@ -118,8 +119,8 @@ autocmd FileType cpp setlocal textwidth=100
 autocmd FileType c setlocal shiftwidth=4
 autocmd FileType cpp setlocal shiftwidth=4
 autocmd FileType sh setlocal shiftwidth=4
-autocmd FileType c set cino=(s,u0,U1,l1:0
-autocmd FileType cpp set cino=(s,u0,U1,g0,N-s,E-s,l1:0
+autocmd FileType c set cino=(s,u0,U1,l1
+autocmd FileType cpp set cino=(s,u0,U1,g0,N-s,E-s,l1
 autocmd FileType perl setlocal shiftwidth=4
 "autocmd FileType python set cino=(0
 " For all text files set 'shiftwidth' to 2 characters.
@@ -349,18 +350,21 @@ if has("cscope")
 "set nocscopetag
 
 function! Cscope(option, query)
-  let color = 'print("\x1b[38;5;13m$F[0] $F[2] ->  \x1b[38;5;7m@F[3..$#F]\n")'
-  let preview = 'print("\x1b[38;5;76m$_\x1b[0m") if $. == $line; print "$_" if $. != $line'
+  " set color for path and code line
+  let color = 'print("\x1b[38;5;95m$F[0] $F[2] ->  \x1b[38;5;2m@F[3..$#F]\n")'
+  " set color for highlighted line in code preview
+  let preview = 'print("\x1b[38;5;2m$_\x1b[0m") if $. == $line; print "$_" if $. != $line'
 
   let opts = {
   \ 'source':  "cscope -dL" . a:option . " " . a:query . " | perl -nae '" . color . "'",
   \ 'options': ['--ansi', '--prompt', '> ',
   \             '--multi', '--bind', 'ctrl-j:down,ctrl-k:up',
-  \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104',
   \             '--preview', "cat {1} | perl -ne '$line={2}; " . preview . "'",
   \             '--preview-window', '+{2}-10'],
   \ 'down': '70%'
   \ }
+  "\             '--color', 'fg:236,fg+:222,bg+:#3a3a3a,hl+:104',
+
   function! opts.sink(lines) 
     let data = split(a:lines)
     execute 'e ' . '+' . data[1] . ' ' . data[0]
