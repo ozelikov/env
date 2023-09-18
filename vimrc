@@ -73,7 +73,7 @@ set clipboard+=unnamed
 set undofile
 set undodir^=~/.vim/undo//
 
-"command Paste execute 'set noai | insert | set ai'
+"command Paste execute 'set paste | insert | set nopaste'
 
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
@@ -169,11 +169,22 @@ function! OGrep()
     :put=text
 endfunction
 
-function! OGrepSplit()
-    :vertical
-    :e expand("<cword>")
+function! OGitBlame(file)
+    " Example of command:
+    ":enew | set bt=nofile | r !git blame <file>
+    " Format
+    "e0d2e45d pmd/main.cpp (<ozelikov@aaa.com> 2020-07-29 15:44:15 +0300  54) #include <stdio.h>
+    :let regex = 's/(^\S+)\s+\S+\s+\(<(\w+)\S+(\s+\S+).*?\)/$1 $2 $3/'
+    :let text = system("git blame -ef " . a:file ." | perl -npe '" . regex . "'")
+    :set scrollbind
+    :vsplit
+    :enew
+    :set buftype=nofile
+    :put!=text
+    :autocmd BufWinLeave * set noscrollbind
+	:normal <Ctrl+w>w
+    :syncbind
 endfunction
-
 
 " ***************************************
 " STATUSLINE 
@@ -240,13 +251,13 @@ map <C-S-F7> :cp<CR>
 
 map <S-F9> :setlocal spell! spelllang=en_us<CR>
 imap <S-F9> <C-o>:setlocal spell! spelllang=en_us<CR>
+set pastetoggle=<F9>
 
 map <S-Left> :bp<CR>
 map <S-Right> :bn<CR>
 
 nmap <C-P> :Files<CR>
 nmap <F8> :call OGrep() <CR> 
-nmap <C-F8> :call OGrepSplit() <CR> 
 
 "iunmap <C-y>
 "unmap <C-a>
@@ -373,6 +384,7 @@ function! Cscope(option, query)
 endfunction
 
 function! CscopeAllSyms()
+    " FIXME broken right now
   let color = 'print("\x1b[38;5;13m$F[0] $F[2] ->  \x1b[38;5;7m@F[3..$#F]\n")'
   let preview = 'print("\x1b[38;5;76m$_\x1b[0m") if $. == $line; print "$_" if $. != $line'
 
@@ -467,8 +479,8 @@ nmap <C-\>f :call Cscope('7', expand('<cfile>'))<CR>
 nnoremap <silent> <Leader><Leader>cf :call CscopeQuery('7')<CR>
 
 " 8: Find files #including this file
-nnoremap <silent> <Leader>ci :call Cscope('8', expand('<cfile>'))<CR>
-nmap <C-\>i :call Cscope('8', expand('<cfile>'))<CR>
+nnoremap <silent> <Leader>ci :call Cscope('8', expand('%:t'))<CR>
+nmap <C-\>i :call Cscope('8', expand('%:t'))<CR>
 nnoremap <silent> <Leader><Leader>ci :call CscopeQuery('8')<CR>
 
 " 9: Find places where this symbol is assigned a value
@@ -478,5 +490,6 @@ nnoremap <silent> <Leader><Leader>ct :call CscopeQuery('9')<CR>
 
 " 10: Find files changed in recent commits
 nnoremap <silent> <Leader><Leader>g :call CscopeQuery('10')<CR>
+nnoremap <silent> <Leader>gb :call OGitBlame(expand('%'))<CR>
 
 endif " cscope
