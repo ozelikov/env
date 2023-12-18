@@ -12,6 +12,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     "Plug 'tpope/vim-fugitive'
     "Plug 'Yggdroot/indentLine'
     Plug 'vim-scripts/indentpython.vim'
+    "Plug 'natebosch/vim-lsc'
     call plug#end()
 endif
 
@@ -47,7 +48,7 @@ set history=50  " keep 50 lines of command line history
 set ruler       " show the cursor position all the time
 set showcmd     " display incomplete commands
 set incsearch   " do incremental searching
-set number      " show line numbers
+set nonumber    " don't show line numbers
 set ignorecase  " ignore case in pattern
 set mouse=a     " enable mouse
 
@@ -187,18 +188,6 @@ function! OGitBlame(file)
 endfunction
 
 " ***************************************
-" STATUSLINE 
-" ***************************************
-set laststatus=2
-set statusline +=%{OGitBranch()}
-set statusline +=\ %<%F            "full path
-set statusline +=\ %m\ %r          "modified flag
-set statusline +=%=%5l             "current line
-set statusline +=/%L               "total lines
-set statusline +=%4v\              "virtual column number
-" hi User1 guifg=#292b00  guibg=#f4f597
-
-" ***************************************
 " QUICKFIX 
 " ***************************************
 " ignore warnings
@@ -247,6 +236,7 @@ map <F7> :cf .errfile.tmp<CR>
 map <S-F7> :cl<CR>
 map <C-F7> :cn<CR>
 map <C-S-F7> :cp<CR>
+set pastetoggle=<F9>
 
 
 map <S-F9> :setlocal spell! spelllang=en_us<CR>
@@ -276,7 +266,7 @@ let g:netrw_list_hide= '.*\.swp$,^\.git$,^\..*$,\~$'
 "  COLORS and FONTS
 " ***************************************
 syntax enable
-:color peachpuff
+color peachpuff
 set guifont=Monospace\ 11
 "set guifont=Lucida_Console:h12
 "set guifont=DejaVu_Sans_Mono:h11:cANSI
@@ -328,6 +318,32 @@ endif
 ":color delek
 
 " ***************************************
+" STATUSLINE 
+" ***************************************
+hi SL_CurLineP ctermbg=221 ctermfg=16
+hi SL_CurLineCol ctermbg=219 ctermfg=16
+hi SL_File ctermbg=23 ctermfg=230
+hi SL_FileType ctermbg=8 ctermfg=16
+hi SL_GitBranch ctermbg=172 ctermfg=16
+
+set laststatus=2
+set statusline =
+set statusline +=%#SL_CurLineP#
+set statusline +=\ %3p%%\             "current line %
+set statusline +=%#SL_CurLineCol#
+set statusline +=%5l               "current line
+set statusline +=:%-2v\            "virtual column number
+set statusline +=%#SL_File#
+set statusline +=\ %<%F            "full path
+set statusline +=\ %m\ %r          "modified and read-only flags
+set statusline +=%=                "separator
+set statusline +=%#SL_FileType#
+set statusline +=\ %y\ 
+set statusline +=%#SL_GitBranch#
+set statusline +=\ %{OGitBranch()}\ 
+"set statusline=%1*Hello|\%2*world
+
+" ***************************************
 "  DIFF MODE
 " ***************************************
 :if &diff
@@ -354,6 +370,7 @@ map <C-b> [czz
 " :echo $VIMRUNTIME  
 "
 "
+" :source ~/.vimrc
 
 " cscope
 if has("cscope")
@@ -493,3 +510,52 @@ nnoremap <silent> <Leader><Leader>g :call CscopeQuery('10')<CR>
 nnoremap <silent> <Leader>gb :call OGitBlame(expand('%'))<CR>
 
 endif " cscope
+
+if 0
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-lsc config
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:lsc_server_commands = {
+\ 'cpp': {
+\    'command': 'ccls',
+\    'message_hooks': {
+\        'initialize': {
+\            'initializationOptions': {'cache': {'directory': '/tmp/ccls/cache'}},
+\            'rootUri': {m, p -> lsc#uri#documentUri(fnamemodify(findfile('compile_commands.json', expand('%:p') . ';'), ':p:h'))}
+\        },
+\    },
+\  },
+\ 'c': {
+\    'command': 'ccls',
+\    'message_hooks': {
+\        'initialize': {
+\            'initializationOptions': {'cache': {'directory': '/tmp/ccls/cache'}},
+\            'rootUri': {m, p -> lsc#uri#documentUri(fnamemodify(findfile('compile_commands.json', expand('%:p') . ';'), ':p:h'))}
+\        },
+\    },
+\  },
+\}
+
+let g:lsc_reference_highlights = v:true
+let g:lsc_enable_autocomplete = v:true
+let g:lsc_enable_diagnostics = v:true
+let g:lsc_trace_level = 'off'
+autocmd CompleteDone * silent! pclose
+"set completeopt-=preview
+
+let g:lsc_auto_map = {
+    \ 'GoToDefinition': 'gd',
+    \ 'GoToDefinitionSplit': ['<C-W>]', '<C-W><C-]>'],
+    \ 'FindReferences': 'gr',
+    \ 'NextReference': 'gn',
+    \ 'PreviousReference': 'gp',
+    \ 'FindImplementations': 'gI',
+    \ 'FindCodeActions': 'ga',
+    \ 'Rename': 'gR',
+    \ 'ShowHover': v:true,
+    \ 'DocumentSymbol': 'go',
+    \ 'WorkspaceSymbol': 'gS',
+    \ 'SignatureHelp': 'gm',
+    \ 'Completion': 'completefunc',
+    \}
+endif
