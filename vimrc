@@ -13,6 +13,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     "Plug 'Yggdroot/indentLine'
     Plug 'vim-scripts/indentpython.vim'
     "Plug 'natebosch/vim-lsc'
+    Plug 'airblade/vim-gitgutter'
     call plug#end()
 endif
 
@@ -63,7 +64,7 @@ set tabstop=4
 set shiftwidth=4
 
 set visualbell
-set foldcolumn=2
+set foldcolumn=0
 set confirm
 
 set clipboard+=unnamed
@@ -313,9 +314,13 @@ hi Ignore cterm=bold ctermfg=7 guifg=bg
 hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
 hi Todo term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 hi cSpaceError ctermbg=250 ctermfg=16 
+
+hi cppSTLtype term=underline ctermfg=37 gui=bold guifg=SeaGreen
+autocmd FileType cpp syntax keyword cppSTLtype string
+autocmd FileType cpp syntax match cppSTLtype "\<std::[a-z_]*"
 endif
 
-":color delek
+"color delek
 
 " ***************************************
 " STATUSLINE 
@@ -329,7 +334,7 @@ hi SL_GitBranch ctermbg=172 ctermfg=16
 set laststatus=2
 set statusline =
 set statusline +=%#SL_CurLineP#
-set statusline +=\ %3p%%\             "current line %
+set statusline +=\ %3p%%\          "current line %
 set statusline +=%#SL_CurLineCol#
 set statusline +=%5l               "current line
 set statusline +=:%-2v\            "virtual column number
@@ -338,7 +343,7 @@ set statusline +=\ %<%F            "full path
 set statusline +=\ %m\ %r          "modified and read-only flags
 set statusline +=%=                "separator
 set statusline +=%#SL_FileType#
-set statusline +=\ %y\ 
+set statusline +=\ %y\             "file type
 set statusline +=%#SL_GitBranch#
 set statusline +=\ %{OGitBranch()}\ 
 "set statusline=%1*Hello|\%2*world
