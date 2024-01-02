@@ -8,12 +8,10 @@ case $- in
       *) return;;
 esac
 
-export LC_ALL="en_US.UTF-8"
+export LC_ALL="en_US.utf8"
+export LANG="en_US.utf8"
 
-USER_AND_HOSTNAME="$(whoami)@$(hostname)"
-if [[ $USER_AND_HOSTNAME = "ozelikov@ozelikov-linux" ]] ; then
-    USER_AND_HOSTNAME="oz@dev"
-fi
+USER_AND_HOSTNAME=${USER_AND_HOSTNAME:="$(whoami)@$(hostname)"}
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -58,7 +56,7 @@ echo -ne "\033P\033\033[0 q\033\\"
 # should be on the output of commands, not on the prompt
 #force_color_prompt=yes
 
-if [ -n "$force_color_prompt" ]; then
+if [[ -n "$force_color_prompt" ]]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
         color_prompt=yes
     else
@@ -75,14 +73,26 @@ _my_path()
     echo $str
 }
 
-if [ "$color_prompt" = yes ]; then
-    #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ '
-    PS1='\[\033[01;32m\]$USER_AND_HOSTNAME\[\033[00m\]:\[\033[35;1m\]$(_my_path)\[\033[00m\]\$ '
+# TODO: detect if triangle char is available and enable nice_prompt
+nice_prompt="yes"
+if [[ "$nice_prompt" = "yes" ]] ; then
+    USER_BG="\e[48;5;31m"
+    USER_FG="\e[38;5;31m"
+    PATH_BG="\e[48;5;236m"
+    PATH_FG="\e[38;5;236m"
+    RESET="\e[0m"
+
+    triangle_1=$(echo -e "${USER_FG}${PATH_BG}\uE0B0${RESET}")
+    triangle_2=$(echo -e "${PATH_FG}\uE0B0")
+
+    PS1="${USER_BG}$USER_AND_HOSTNAME${RESET}${triangle_1}${PATH_BG} \$(_my_path) ${RESET}${triangle_2}${RESET} "
+
+elif [[ "$color_prompt" = "yes" ]]; then
+    PS1='\[[01;35m\]$USER_AND_HOSTNAME\[[00m\]:\[[35;1m\]$(_my_path)\[[00m\]\$ '
 else
-    #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\W\$ '
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
-unset color_prompt force_color_prompt
+unset color_prompt force_color_prompt nice_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
