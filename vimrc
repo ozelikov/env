@@ -275,7 +275,8 @@ set guifont=Monospace\ 11
 
 if &t_Co > 255
 color codedark
-hi cppSTLtype term=underline ctermfg=156 gui=bold guifg=SeaGreen
+hi cppSTLtype term=underline ctermfg=117 gui=bold guifg=SeaGreen
+"hi Normal ctermfg=7 
 autocmd FileType cpp syntax keyword cppSTLtype string
 autocmd FileType cpp syntax match cppSTLtype "\<std::[:a-z_]*"
 
