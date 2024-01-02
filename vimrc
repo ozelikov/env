@@ -14,6 +14,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     Plug 'vim-scripts/indentpython.vim'
     "Plug 'natebosch/vim-lsc'
     Plug 'airblade/vim-gitgutter'
+    Plug 'tomasiser/vim-code-dark'
     call plug#end()
 endif
 
@@ -267,13 +268,37 @@ let g:netrw_list_hide= '.*\.swp$,^\.git$,^\..*$,\~$'
 "  COLORS and FONTS
 " ***************************************
 syntax enable
-color peachpuff
 set guifont=Monospace\ 11
 "set guifont=Lucida_Console:h12
 "set guifont=DejaVu_Sans_Mono:h11:cANSI
 "set guifont=-adecw-screen-medium-r-normal--14-140-75-75-m-70-iso8859-1
 
 if &t_Co > 255
+color codedark
+hi cppSTLtype term=underline ctermfg=156 gui=bold guifg=SeaGreen
+autocmd FileType cpp syntax keyword cppSTLtype string
+autocmd FileType cpp syntax match cppSTLtype "\<std::[:a-z_]*"
+
+endif
+
+
+" ***************************************
+"  DIFF MODE
+" ***************************************
+:if &diff
+map <C-F1> :set diffopt^=iwhite<CR>
+set noro
+set noswapfile
+" ignore whitespace in diff mode
+map <F4> :match Ignore /\r$/<CR>
+map <F5> :set diffopt^=iwhite<CR>
+nnoremap ZZ :wqa<CR>
+nnoremap XX :qa<CR>
+nnoremap <C-q> :qa<CR>
+map <C-n> ]czz
+map <C-b> [czz
+
+color peachpuff
 hi Normal ctermbg=223 ctermfg=16 guibg=PeachPuff guifg=Black
 hi SpecialKey term=bold ctermfg=4 guifg=Blue
 hi NonText term=bold cterm=bold ctermfg=4 gui=bold guifg=Blue
@@ -314,13 +339,13 @@ hi Ignore cterm=bold ctermfg=7 guifg=bg
 hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=Red
 hi Todo term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 hi cSpaceError ctermbg=250 ctermfg=16 
+hi cppSTLtype term=underline ctermfg=29 gui=bold guifg=SeaGreen
 
-hi cppSTLtype term=underline ctermfg=37 gui=bold guifg=SeaGreen
+hi Normal ctermbg=250 ctermfg=16 
+
 autocmd FileType cpp syntax keyword cppSTLtype string
 autocmd FileType cpp syntax match cppSTLtype "\<std::[a-z_]*"
-endif
-
-"color delek
+:endif
 
 " ***************************************
 " STATUSLINE 
@@ -348,23 +373,6 @@ set statusline +=%#SL_GitBranch#
 set statusline +=\ %{OGitBranch()}\ 
 "set statusline=%1*Hello|\%2*world
 
-" ***************************************
-"  DIFF MODE
-" ***************************************
-:if &diff
-map <C-F1> :set diffopt^=iwhite<CR>
-set noro
-set noswapfile
-hi Normal ctermbg=250 ctermfg=16 
-" ignore whitespace in diff mode
-map <F4> :match Ignore /\r$/<CR>
-map <F5> :set diffopt^=iwhite<CR>
-nnoremap ZZ :wqa<CR>
-nnoremap XX :qa<CR>
-nnoremap <C-q> :qa<CR>
-map <C-n> ]czz
-map <C-b> [czz
-:endif
 
 " My Tips
 "
