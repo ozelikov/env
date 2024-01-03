@@ -49,7 +49,7 @@ case "$TERM" in
 esac
 
 # Some fix for tmux
-echo -ne "\033P\033\033[0 q\033\\"
+echo -ne "\033P\033\033[0 q\033\\ \n"
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
@@ -76,11 +76,12 @@ _my_path()
 # TODO: detect if triangle char is available and enable nice_prompt
 nice_prompt="yes"
 if [[ "$nice_prompt" = "yes" ]] ; then
-    USER_BG="\e[48;5;31m"
-    USER_FG="\e[38;5;31m"
-    PATH_BG="\e[48;5;236m"
-    PATH_FG="\e[38;5;236m"
-    RESET="\e[0m"
+    # NOTE: non-printable chars should be enclosed in \[ and \]
+    USER_BG="\[\e[48;5;23m\]"
+    USER_FG="\[\e[38;5;23m\]"
+    PATH_BG="\[\e[48;5;236m\]"
+    PATH_FG="\[\e[38;5;236m\]"
+    RESET="\[\e[0m\]"
 
     triangle_1=$(echo -e "${USER_FG}${PATH_BG}\uE0B0${RESET}")
     triangle_2=$(echo -e "${PATH_FG}\uE0B0")
