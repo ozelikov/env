@@ -9,9 +9,15 @@ case $- in
 esac
 
 export LC_ALL="en_US.utf8"
-export LANG="en_US.utf8"
 
-USER_AND_HOSTNAME=${USER_AND_HOSTNAME:="$(whoami)@$(hostname)"}
+HOSTNAME=${HOSTNAME:=$(hostname)}
+USER=${USER:=$(whoami)}
+PROMPT_USER_HOST=${PROMPT_USER_HOST:="$USER@$HOSTNAME"}
+PROMPT_HOSTNAME=$HOSTNAME
+if [[ ${#PROMPT_HOSTNAME} -gt 20 ]] ; then
+    PROMPT_HOSTNAME="${PROMPT_HOSTNAME:0:20}"
+    PROMPT_USER_HOST="$USER@$PROMPT_HOSTNAME"
+fi
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -75,21 +81,35 @@ _my_path()
 
 # TODO: detect if triangle char is available and enable nice_prompt
 nice_prompt="yes"
-if [[ "$nice_prompt" = "yes" ]] ; then
+
+_set_nice_prompt()
+{
     # NOTE: non-printable chars should be enclosed in \[ and \]
-    USER_BG="\[\e[48;5;23m\]"
-    USER_FG="\[\e[38;5;23m\]"
-    PATH_BG="\[\e[48;5;236m\]"
-    PATH_FG="\[\e[38;5;236m\]"
-    RESET="\[\e[0m\]"
+    local PATH_BG="\[\e[48;5;236m\]"
+    local PATH_FG="\[\e[38;5;236m\]"
+    local RESET="\[\e[0m\]"
 
-    triangle_1=$(echo -e "${USER_FG}${PATH_BG}\uE0B0${RESET}")
-    triangle_2=$(echo -e "${PATH_FG}\uE0B0")
+    if [[ $USER = "root" ]] ; then
+        local USER_BG="\[\e[48;5;167m\]"
+        local USER_FG="\[\e[38;5;167m\]"
+        local triangle_1=$(echo -e "${USER_FG}${PATH_BG}\uE0B0${RESET}")
+        local triangle_2=$(echo -e "${PATH_FG}\uE0B0")
 
-    PS1="${USER_BG}$USER_AND_HOSTNAME${RESET}${triangle_1}${PATH_BG} \$(_my_path) ${RESET}${triangle_2}${RESET} "
+        PS1="${USER_BG}$PROMPT_HOSTNAME${RESET}${triangle_1}${PATH_BG} \$(_my_path) ${RESET}${triangle_2}${RESET} "
+    else
+        local USER_BG="\[\e[48;5;23m\]"
+        local USER_FG="\[\e[38;5;23m\]"
+        local triangle_1=$(echo -e "${USER_FG}${PATH_BG}\uE0B0${RESET}")
+        local triangle_2=$(echo -e "${PATH_FG}\uE0B0")
 
+        PS1="${USER_BG}$PROMPT_USER_HOST${RESET}${triangle_1}${PATH_BG} \$(_my_path) ${RESET}${triangle_2}${RESET} "
+    fi
+}
+
+if [[ "$nice_prompt" = "yes" ]] ; then
+    _set_nice_prompt
 elif [[ "$color_prompt" = "yes" ]]; then
-    PS1='\[[01;35m\]$USER_AND_HOSTNAME\[[00m\]:\[[35;1m\]$(_my_path)\[[00m\]\$ '
+    PS1='\[[01;35m\]$PROMPT_USER_HOST\[[00m\]:\[[35;1m\]$(_my_path)\[[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
