@@ -67,6 +67,7 @@ set shiftwidth=4
 set visualbell
 set foldcolumn=0
 set confirm
+set colorcolumn=101
 
 set clipboard+=unnamed
 
@@ -274,11 +275,19 @@ set guifont=Monospace\ 11
 "set guifont=-adecw-screen-medium-r-normal--14-140-75-75-m-70-iso8859-1
 
 if &t_Co > 255
-color codedark
+try 
+    color codedark
+catch
+    color desert
+endtry
+
 hi cppSTLtype term=underline ctermfg=117 gui=bold guifg=SeaGreen
-"hi Normal ctermfg=7 
+hi Normal ctermfg=249
 autocmd FileType cpp syntax keyword cppSTLtype string
 autocmd FileType cpp syntax match cppSTLtype "\<std::[:a-z_]*"
+
+autocmd VimEnter * highlight VertSplit ctermfg=23
+
 
 endif
 
@@ -300,7 +309,8 @@ map <C-n> ]czz
 map <C-b> [czz
 
 color peachpuff
-hi Normal ctermbg=223 ctermfg=16 guibg=PeachPuff guifg=Black
+"hi Normal ctermbg=223 ctermfg=16 guibg=PeachPuff guifg=Black
+hi Normal ctermbg=250 ctermfg=16 
 hi SpecialKey term=bold ctermfg=4 guifg=Blue
 hi NonText term=bold cterm=bold ctermfg=4 gui=bold guifg=Blue
 hi Directory term=bold ctermfg=4 guifg=Blue
@@ -341,8 +351,6 @@ hi Error term=reverse cterm=bold ctermfg=7 ctermbg=1 gui=bold guifg=White guibg=
 hi Todo term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 hi cSpaceError ctermbg=250 ctermfg=16 
 hi cppSTLtype term=underline ctermfg=29 gui=bold guifg=SeaGreen
-
-hi Normal ctermbg=250 ctermfg=16 
 
 autocmd FileType cpp syntax keyword cppSTLtype string
 autocmd FileType cpp syntax match cppSTLtype "\<std::[a-z_]*"
