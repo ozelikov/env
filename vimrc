@@ -15,8 +15,70 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     "Plug 'natebosch/vim-lsc'
     Plug 'airblade/vim-gitgutter'
     Plug 'tomasiser/vim-code-dark'
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clangd-completer' }
+    Plug 'APZelos/blamer.nvim'
     call plug#end()
 endif
+
+"""""""""""""""""""
+" YouCompleteMe
+"""""""""""""""""""
+
+" For help: clangd --help-list
+if exists('compile_commands.json')
+    let g:ycm_clangd_args=['--header-insertion=never']
+else
+    let g:ycm_clangd_args=['--header-insertion=never']
+    "let g:ycm_clangd_args=['--header-insertion=never --compile_commands_dir=nix/output/cmake/debug-x86_64/cpa/']
+endif
+
+if filereadable('compile_commands.json') || filereadable('go.mod') || filereadable('Makefile') || filereadable('.want-you-complete-me')
+    "let g:ycm_enable_inlay_hints=1
+    let g:ycm_clear_inlay_hints_in_insert_mode=1
+    let g:ycm_auto_trigger=1
+    let g:ycm_enable_semantic_highlighting=0
+    nmap <leader>D <plug>(YCMHover)
+    let g:ycm_auto_hover=""
+    set completeopt-=preview
+    "--compile-commands-dir=/agent/nix/output/cmake/debug-x86_64/cpa
+    " Let clangd fully control code completion
+    let g:ycm_clangd_uses_ycmd_caching = 0
+    " Use installed clangd, not YCM-bundled clangd which doesn't get updates.
+    let g:ycm_clangd_binary_path = exepath("clangd-17")
+    let g:ycm_enable_diagnostic_signs=0
+    let g:ycm_key_list_select_completion = ['<TAB>', '<Down>', '<C-P>']
+    let g:ycm_key_list_previous_completion = ['<S-TAB>', '<Up>']
+
+    nnoremap <leader>yt :YcmCompleter GoTo<CR>
+    nnoremap <leader>yf :YcmCompleter FixIt<CR>
+    nnoremap <leader>yr :YcmCompleter GoToReferences<CR>
+    "nnoremap <leader>yd :YcmCompleter GetDoc<CR>
+    "nnoremap <leader>yp :YcmCompleter GetType<CR>
+    nnoremap <leader>ygp :YcmCompleter GetParent<CR>
+    nnoremap <leader>yi :YcmCompleter GoToInclude<CR>
+    nnoremap <C-]> :YcmCompleter GoTo<CR>
+
+    nnoremap <silent> <Leader>ys :call Clangd(expand('<cword>'))<CR>
+else
+    let g:loaded_youcompleteme = 1
+endif
+
+"""""""""""""""""""
+" Blamer
+"""""""""""""""""""
+let g:blamer_enabled = 0
+let g:blamer_delay = 1000
+let g:blamer_show_in_insert_modes = 0
+let g:blamer_prefix = ' > '
+let g:blamer_template = '<committer> <committer-time> • <summary>'
+let g:blamer_date_format = '%d/%m/%y'
+highlight Blamer ctermfg=8
+
+"""""""""""""""""""
+" FZF
+"""""""""""""""""""
+"let $FZF_DEFAULT_COMMAND='find . \( -path ./nix/output -o -path ./win \) -prune -or -not \( -path ./tags -o -path "./.*" \)'
+let $FZF_DEFAULT_COMMAND='find . \( -path ./nix/output -o -path ./win -o -path "./.*" \) -prune -o \( -name tags -o -name cscope.out \) -prune -o -type f ! -name ".*" -print'
 
 if exists('$TMUX')
     let g:fzf_layout = { 'tmux': '-p90%,60%' }
@@ -331,9 +393,9 @@ hi WarningMsg term=standout ctermfg=1 gui=bold guifg=Red
 hi WildMenu term=standout ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 hi Folded term=standout ctermfg=4 ctermbg=7 guifg=Black guibg=#e3c1a5
 hi FoldColumn term=standout ctermfg=4 ctermbg=7 guifg=DarkBlue guibg=Gray80
-hi DiffAdd term=bold ctermbg=223 guibg=White
-hi DiffChange term=bold ctermbg=223 guibg=#edb5cd
-hi DiffDelete term=bold cterm=bold ctermfg=4 ctermbg=217 gui=bold guifg=LightBlue guibg=#f6e8d0
+hi DiffAdd cterm=bold    ctermfg=237 ctermbg=223 guibg=White
+hi DiffChange cterm=bold ctermfg=237 ctermbg=223 guibg=#edb5cd
+hi DiffDelete cterm=bold cterm=bold ctermfg=4 ctermbg=217 gui=bold guifg=LightBlue guibg=#f6e8d0
 hi DiffText term=reverse cterm=bold ctermbg=229 gui=bold guibg=#ff8060
 hi Cursor guifg=bg guibg=fg 
 hi lCursor guifg=bg guibg=fg
@@ -393,6 +455,27 @@ set statusline +=\ %{OGitBranch()}\
 "
 "
 " :source ~/.vimrc
+"
+
+function! Clangd(query)
+  :redir >/tmp/vim.ycmcompleter.txt
+  :YcmCompleter GoToReferences
+  :redir END
+
+  let opts = {
+  \ 'source':  'cat /tmp/vim.ycmcompleter.txt',
+  \ 'options': ['--ansi', '--prompt', '> ',
+  \             '--multi', '--bind', 'ctrl-j:down,ctrl-k:up',
+  \             '--preview-window', '+{2}-10'],
+  \ 'down': '70%'
+  \ }
+
+  function! opts.sink(lines) 
+    let data = split(a:lines)
+    execute 'e ' . '+' . data[1] . ' ' . data[0]
+  endfunction
+  call fzf#run(opts)
+endfunction
 
 " cscope
 if has("cscope")
